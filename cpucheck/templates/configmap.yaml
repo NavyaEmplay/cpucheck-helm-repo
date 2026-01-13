@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cpucheck-scripts
+  namespace: {{ .Values.namespace }}
+data:
+  config.env: |
+    RETRY_COUNT={{ .Values.config.RETRY_COUNT }}
+    RETRY_INTERVAL={{ .Values.config.RETRY_INTERVAL }}
+    COOLDOWN_PERIOD={{ .Values.config.COOLDOWN_PERIOD }}
+    CPU_THRESHOLD={{ .Values.config.CPU_THRESHOLD }}
+    LOG_DIR={{ .Values.config.LOG_DIR }}
+    EMAIL_ENABLED={{ .Values.config.EMAIL_ENABLED }}
+    EMAIL_SUBJECT_PREFIX="{{ .Values.config.EMAIL_SUBJECT_PREFIX }}"
+    EMAIL_FROM={{ .Values.config.EMAIL_FROM }}
+    EMAIL_TO={{ .Values.config.EMAIL_TO }}
+    SMTP_HOST={{ .Values.config.SMTP_HOST }}
+    SMTP_PORT={{ .Values.config.SMTP_PORT }}
+    SMTP_USERNAME={{ .Values.config.SMTP_USERNAME }}
+    SMTP_PASSWORD_FILE=/opt/secret/SMTP_PASSWORD
+
+  utils.sh: |
+{{ .Files.Get "scripts/utils.sh" | indent 4 }}
+
+  checkcpu.sh: |
+{{ .Files.Get "scripts/checkcpu.sh" | indent 4 }}

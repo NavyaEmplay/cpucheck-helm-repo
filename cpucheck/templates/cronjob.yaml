@@ -1,0 +1,61 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cpucheck-cron
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: {{ .Values.schedule | quote }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 120
+      ttlSecondsAfterFinished: 300
+      template:
+        spec:
+          serviceAccountName: {{ .Values.serviceAccount.name }}
+          restartPolicy: OnFailure
+          containers:
+          - name: cpucheck
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            command: ["/bin/bash", "-c"]
+            args:
+              - |
+                set -e
+                apt-get update && \
+                apt-get install -y curl ca-certificates && \
+                curl -LO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+                install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
+                bash /opt/scripts/checkcpu.sh
+            volumeMounts:
+            - name: scripts
+              subPath: checkcpu.sh
+              mountPath: /opt/scripts/checkcpu.sh
+            - name: scripts
+              subPath: config.env
+              mountPath: /opt/config/config.env
+            - name: scripts
+              subPath: utils.sh
+              mountPath: /opt/utils/utils.sh
+            - name: state
+              mountPath: /opt/state
+            - name: logs
+              mountPath: /opt/logs
+            - name: smtpsecret
+              mountPath: /opt/secret
+              readOnly: true
+          volumes:
+          - name: scripts
+            configMap:
+              name: cpucheck-scripts
+          - name: state
+            persistentVolumeClaim:
+              claimName: {{ .Values.persistence.state.name }}
+          - name: logs
+            persistentVolumeClaim:
+              claimName: {{ .Values.persistence.logs.name }}
+          - name: smtpsecret
+            secret:
+              secretName: cpucheck-smtp-secret
