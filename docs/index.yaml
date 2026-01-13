@@ -3,12 +3,12 @@ entries:
   cpucheck:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-01-13T15:15:16.75852565+05:30"
+    created: "2026-01-13T15:44:39.025700884+05:30"
     description: A Helm chart for Kubernetes
     digest: c50b67320c46edf0ba9f998b27e3082b8a984d0f5104335b555fcbac05e9173f
     name: cpucheck
     type: application
     urls:
-    - https://Navya-Emplay.github.io/cpucheck-helm-repo/cpucheck-0.1.0.tgz
+    - https://NavyaEmplay.github.io/cpucheck-helm-repo/cpucheck-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-13T15:15:16.758122157+05:30"
+generated: "2026-01-13T15:44:39.025379468+05:30"
